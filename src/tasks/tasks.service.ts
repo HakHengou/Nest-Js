@@ -1,13 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { Task, TaskStatus } from './task.model';
 import { v4 as uuidv4 } from 'uuid';
 import { CreatTaskDto } from './dto/create-task.dto';
 import { GetTaskFilterDto } from './dto/get-task-filter.dto';
+import { BaseExceptionFilter } from '@nestjs/core';
 @Injectable()
 export class TasksService {
     private tasks: Task[] = [];
     getAllTasks (): Task[]{
-        return this.tasks;
+        return this.tasks;  
     }
     getTaskFilter(filterDto: GetTaskFilterDto){
         const {status, search}= filterDto;
@@ -25,10 +26,18 @@ export class TasksService {
         return tasks
     }
     getTaskById( id: string){
-        return this.tasks.find(task => task.id === id);
+        const found = this.tasks.find(task => task.id === id);
+        if(!found){
+            throw new NotFoundException(`Task with ID "${id}" not found!`);
+        }
+        else{
+            return found;
+        }
+        // return this.tasks.find(task => task.id === id);
     }
     deleteTask( id: string): void{
-        this.tasks = this.tasks.filter(task => task.id !== id);
+        const found = this.getTaskById(id)
+        this.tasks = this.tasks.filter(task => task.id !== found.id);
     }
     // createTask(title: string, description: string): Task {
     //     const task: Task = {
@@ -55,5 +64,56 @@ export class TasksService {
         const task = this.getTaskById(id);
         task.status = status;
         return task;
+    }
+    updateTask(id: string, title: string, description: string): any{
+        // const {title, description} = createTaskDto;
+        const task = this.getTaskById(id);
+        
+        if(title == '' || description == ''){
+            throw new BadRequestException("Title or Description can not be null !!!")
+        }else{
+            task.title = title;
+            task.description = description;
+            return task;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+        
     }
 }

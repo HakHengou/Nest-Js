@@ -1,4 +1,6 @@
-export interface Task {
+import { IsNotEmpty } from "class-validator";
+
+export class Task {
     id: string;
     title: string;
     description: string;
